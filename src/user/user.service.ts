@@ -26,4 +26,32 @@ export class UserService {
       password: undefined
     };
   }
+
+  async findByEmail(email:string){
+    const responseEmail = await this.prisma.user.findUnique({
+      where: {
+        email
+      } 
+    })
+
+    // console.log(responseEmail)
+    // return responseEmail
+
+    return {
+      ...responseEmail,
+      password: undefined
+    };
+  }
+
+  async findeAllUsers(): Promise<ReturnUserDto[]>{
+    const users = await this.prisma.user.findMany({
+      select:{
+        id: true,
+        email: true,
+        name_user: true
+      }
+    })
+    return users
+
+  }
 }

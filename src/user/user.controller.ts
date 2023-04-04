@@ -14,7 +14,7 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
+  // @Get()
   async getEmail(@Body() body: any){
     console.log(body.email)
      return this.userService.findByEmail(body.email)

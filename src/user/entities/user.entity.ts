@@ -2,5 +2,5 @@ export class User {
     id?: string;
     email: string;
     password:string
-    name:string
+    name_user:string
 }

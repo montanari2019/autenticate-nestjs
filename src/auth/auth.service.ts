@@ -11,11 +11,15 @@ export class AuthService {
   constructor(private readonly userService: UserService, private readonly jwtService: JwtService) {}
 
   login(user: User): UserToken {
+    console.log("Service auth" ,user)
+
     const payload: UserPayload = {
       sub: user.id,
       email: user.email,
-      name: user.name,
+      name_user: user.name_user,
     };
+
+    console.log("Payload no login:", payload)
 
     const jwToken = this.jwtService.sign(payload)
 
@@ -31,9 +35,10 @@ export class AuthService {
     console.log('função de login');
     const user = await this.userService.findByEmail(email);
 
+
     if (user !== null) {
       console.log('User existe');
-      // console.log(user)
+      console.log(user)
       const isPasswordValid = await bcripty.compare(password, user.password);
 
       if (isPasswordValid) {

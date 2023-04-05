@@ -15,4 +15,21 @@ model User {
   email     String @unique
   password  String
   name_user String
+
+  tentativas   Int           @default(0)
+  user_history User_history_login[]
+
+  @@map("user")
+}
+
+model User_history_login {
+  id         String   @id @unique @default(uuid())
+  date_login DateTime @default(now())
+  is_sucess  Boolean  
+  
+  
+  
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  @@map("user_history_login")
 }

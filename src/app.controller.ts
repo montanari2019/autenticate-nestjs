@@ -17,7 +17,7 @@ export class AppController {
 
   @Get('me')
   getMe(@CurrentUser() user: User){
-    console.log(user)
+    // console.log(user)
     return user
   }
 

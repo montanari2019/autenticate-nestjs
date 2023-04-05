@@ -20,6 +20,11 @@ export class UserService {
       data: user
     })
 
+    // const teste = await this.prisma..create({
+    //   data: user
+    // })
+
+
 
     return {
       ...createdUser,

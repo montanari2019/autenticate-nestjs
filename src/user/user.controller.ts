@@ -2,7 +2,6 @@ import { Body, Controller, Post, Get } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
 import { ReturnUserDto } from './dto/return-user.dto';
-import { IsPublic } from 'src/auth/decorators/is-public.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { UserFromJwt } from 'src/auth/models/UserFromJwt';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';

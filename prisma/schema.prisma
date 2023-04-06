@@ -19,6 +19,7 @@ model User {
   tentativas   Int                  @default(0)
   user_created String
   user_history User_history_login[]
+  tasks        Task[]
 
   // @@map("user")
 }
@@ -32,4 +33,15 @@ model User_history_login {
   user    User   @relation(fields: [user_id], references: [id])
 
   @@map("user_history_login")
+}
+
+model Task {
+  id           String   @id @unique @default(uuid())
+  title        String
+  description  String?
+  is_concluded Boolean  @default(false)
+  user_id      String
+  user         User     @relation(fields: [user_id], references: [id])
+  createAt     DateTime @default(now())
+  updateAt     DateTime @updatedAt()
 }

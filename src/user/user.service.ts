@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,26 +10,45 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const user = {
-      ...createUserDto,
-      password: await bcrypt.hash(createUserDto.password, 10),
-    };
 
-    const createdUser = await this.prisma.user.create({
-      data: user
+  async verifyEmailUser(emailCompare:string){
+    const user = await this.prisma.user.findUnique({
+      where:{
+        email:emailCompare
+      },
+      select:{
+        email: true
+      }      
     })
 
-    // const teste = await this.prisma..create({
-    //   data: user
-    // })
+    if(user){
+      throw new BadRequestException("Email ja Em ultilização")
+    }else{
+      return false
+    }
+  }
 
-
-
-    return {
-      ...createdUser,
-      password: undefined
+  async create(createUserDto: CreateUserDto, user_created: string) {
+    // console.log(user_created)
+    const user = {
+      ...createUserDto,
+      user_created: user_created,
+      password: await bcrypt.hash(createUserDto.password, 10),
     };
+    
+    await this.verifyEmailUser(user.email)
+    
+
+    
+      const createdUser = await this.prisma.user.create({
+            data: user
+          })
+
+          return {
+            ...createdUser,
+            password: undefined
+          };
+
   }
 
   async findByEmail(email:string){
@@ -46,7 +65,10 @@ export class UserService {
       select:{
         id: true,
         email: true,
-        name_user: true
+        name_user: true,
+        user_created: true,
+        ativo: true,
+        tentativas:true
       }
     })
     return users

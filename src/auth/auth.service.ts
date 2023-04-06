@@ -6,6 +6,7 @@ import { UserPayload } from './models/UserPayload';
 import { JwtService } from '@nestjs/jwt';
 import { UserToken } from './models/User-Token';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserLoginHistoryService } from 'src/user_login_history/user_login_history.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
+    private readonly userHistoryLogin: UserLoginHistoryService
   ) {}
 
   login(user: User): UserToken {
@@ -30,6 +32,7 @@ export class AuthService {
 
     return {
       access_token: jwToken,
+      exp: 30,
       user,
     };
   }
@@ -44,32 +47,23 @@ export class AuthService {
       const isPasswordValid = await bcripty.compare(password, user.password);
 
       if (isPasswordValid) {
-        await this.prisma.user_history_login.create({
-          data: {
-            is_sucess: true,
-            user_id: user.id,
-          },
-        });
 
-        this.updateTentativas(true, user.id)
+        await this.userHistoryLogin.createHistoryLogin(user.id, true)
+        
+        await this.updateTentativas(true, user.id)
         
         return {
           ...user,
           password: undefined,
         };
-
-
+        
+        
       } 
       
       else {
-          await this.prisma.user_history_login.create({
-          data: {
-            is_sucess: false,
-            user_id: user.id,
-          },
-          });
-
-          this.updateTentativas(false, user.id)
+        await this.userHistoryLogin.createHistoryLogin(user.id, false)
+       
+        await  this.updateTentativas(false, user.id)
       }
     }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcripty from 'bcrypt';
 import { User } from 'src/user/entities/user.entity';
@@ -41,7 +41,10 @@ export class AuthService {
     console.log('função de login');
     const user = await this.userService.findByEmail(email);
 
-    if (user !== null) {
+    
+    if (user !== null && user.ativo === true) {
+     
+
       console.log('User existe');
       // console.log(user)
       const isPasswordValid = await bcripty.compare(password, user.password);
@@ -61,13 +64,40 @@ export class AuthService {
       } 
       
       else {
+
+        await this.tentativasExcedidas(user.id)
+
         await this.userHistoryLogin.createHistoryLogin(user.id, false)
        
         await  this.updateTentativas(false, user.id)
       }
+      
+      throw new Error('email ou senha estão incorretos');
     }
 
-    throw new Error('email ou senha estão incorretos');
+    throw new Error('Usuário está bloqueado ou não existe')
+
+  }
+
+  async tentativasExcedidas(id_user:string){
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: id_user
+        }
+      })
+
+      if(user.tentativas === 3){
+        await this.prisma.user.update({
+          where:{
+            id: user.id
+          },
+          data:{
+            ativo: false
+          }
+        })
+
+        throw new BadRequestException("Tentativas exedidas para esse usuário, ele será bloqueado, verifique o seu email ou contate o administrador")
+      }
   }
 
   async updateTentativas(success: boolean, id_user: string) {
